@@ -1,0 +1,32 @@
+Yoda vault index file format
+----------------------------
+
+General characteristics:
+- ascii text file, one line for each file entry
+- filename is derived from name of the Yoda vault e.g. 'grp-vault-youth.txt'
+- line ending format is Linux based (though tools that use this file should be tolerant)
+
+
+Each line consists of the following information:
+<hashtype> <whitespace> <hash> <whitespace> <filesize> <optional_pathname>
+
+Lines that start with the '#' hashtag character should be ignored
+
+
+where:
+
+<hashtype>          =  'sha2' or 'md5' (without the quotes)
+                      NB: 
+                      1) hashtype is determined by iRODS server and new types could be added in the future
+                      2) the hash string encoding varies per hashtype, current encodings are:
+                      md5:  hex encoded      should match with Linux: md5sum <file>
+                      sha2: base64 encoded   should match with Linux: sha256sum <file> | xxd -r -p | base64
+<whitespace>        = one or more characters consisting of space, tabs
+<hash>              = hex representation of the hash of a data object 
+                      e.g.   '106995d6626c2bceef429edd9819ff07' (without the quotes) 
+<filesize>          = integer number that depicts size of file in bytes
+<optional_pathname> = <whitespace> <pathname>
+                      NB: the <optional_pathname> component is optional 
+<pathname>          = arbitrary characters to depict the pathname of the data object
+                      NB: For confidentiality reasons the Yoda index file will NOT include the pathname
+

@@ -1,0 +1,32 @@
+[Connection]
+domain: acc.youth.data.uu.nl
+username: jacco
+name: Jacco van Elst
+email: s.e.kreet@uu.nl 
+pass: g3h31m3shizzl3
+port: 443
+proto: https
+usessl: true
+path: /
+
+[LocalFolders]
+data_dir:/Users/jacco/Documents/YOUth/kkc_tasks/trunk/DATA/
+
+[LocalID]
+box_id: mac7
+
+[RemoteFolders]
+list_dir: /grp-datamanager-youth
+put_dir: /grp-intake-youth
+
+[LocalDataBase]
+database: mac7db.sqlite
+
+[CHECKSUM_PATH]
+checksum_file = /grp-datamanager-youth/checksums.txt
+
+# New other "fixed" settings for data & types, do not edit values below here
+
+[TEST_DATA_DIR]
+test_fake_trash = TEST_FAKE_TRASH
+test_data_dir = TEST
