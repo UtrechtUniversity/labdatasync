@@ -30,17 +30,14 @@ Synchronize lab workstation data with a grid storage server (YODA).
 # Package creation
 The package is made like this:
 
-    $ cd path-to-Labdata_cleanup #git repos
-    $ cd labsync
-    $ pip install --upgrade .
+    $ cd path-to-labdatasync #git repos
+    $ pip3 install --upgrade .
         
 # Documentation generation
 Create the whole package's documentation like so:
 
     $ pdoc --html --html-dir docs --only-pypath --external-links --overwrite ./labsync 
     
-## Todo
-- Make new RC branch for retest.
 """
 
 #RC1 edits: central package version comes in db
@@ -79,12 +76,13 @@ from labsync import yoda_helpers as yh
 __version__ = pkg_resources.require("labsync")[0].version
 __email__ = 'j.c.vanelst@uu.nl'
 __authors__ = ['Jacco van Elst', 'Julia Brehm'] 
+#__all__ = ['labsync']
 
 #print ('Package version:', __version__)
 
-#want to exclude e.g. the settings documentation?, uncomment lines below
-# __pdoc__ = {}
-# __pdoc__['settings'] = None 
+#want to exclude e.g. the settings documentation?, (un)comment lines below
+__pdoc__ = {}
+__pdoc__['settings'] = None 
 
 def getConfigFile():
     """
