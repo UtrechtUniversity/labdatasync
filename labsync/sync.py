@@ -796,8 +796,8 @@ or lab technician.""")
                 str(bytesto(first_bytes, 'm')) + " megabytes in total")
     current_ts = str(dt.datetime.now().isoformat())
     then = isotime_to_obj(latest_upload_ts)
-    now = isotime_to_obj(current_ts)
-    delta = now - then
+    newnow = isotime_to_obj(current_ts)
+    delta = newnow - then
     #counter and empty list for files (and sizes) that have been uploaded before
     c2 = 0
     bs2 = []
@@ -846,14 +846,16 @@ or lab technician.""")
                                 remote_path, filename)))
                     #find the DB id of the file by an actually smart query (checksums)
                     #>>>>>>>>>but what if it is a duplicate?: extension:
-                    #we also look for the exact same rela_path = filename deal?<<<<<<<<<<<<
+                    #we also look for the exact same rela_path == remote_path + filename, deal?<<<<<<<<<<<<
                     #TODO: maybe add generic database query w/ warnings about files that 
                     #have been uploaded under different filenames, but with the same checksum
+                    # error corrected with upload count, 
+                    #should have been full (remote) path + name instead of just name
                     find_by_checksum = mydb.get_table_rows_where(table='upload', 
                                 columns = ['id', 'upload_rela_path', 
                                             'upload_timestamp','upload_checksum'],
                                 condition = 
-                                    " WHERE upload_rela_path = '{0}' AND upload_checksum = '{1}' ".format(filename, checksum))
+                                    " WHERE upload_rela_path = '{0}' AND upload_checksum = '{1}' ".format(os.path.join(remote_path, filename), checksum))
                     this_one = find_by_checksum['id'][0]
                     nuweer = str(dt.datetime.now().isoformat())
                     cmd1 = ("UPDATE upload SET upload_count = upload_count + 1 " + 
@@ -862,8 +864,8 @@ or lab technician.""")
                             + "'{0}' WHERE id = {1}".format(nuweer, int(this_one)))
                     res, code = mydb.execute(cmd1)
                     sql_codes.append(code)
-                    res_code  = mydb.execute(cmd2)
-                    sql_codes.append(code)
+                    res2, code2  = mydb.execute(cmd2)
+                    sql_codes.append(code2)
                     mydb.commit()
                     upped.append(file)
                     bs2.append(os.stat(file).st_size)
@@ -878,10 +880,9 @@ or lab technician.""")
                 str(bytesto(second_bytes, 'm')) + " megabytes in total")
     # now for some deletions, preparing
     trash_info = mydb.get_table_rows_simple(table='trash', 
-                    columns=['id','trash_timestamp','trash_checksum', 
-                            'trash_checksum_type','trash_oripath',
-                            'trash_fname','trash_box_id',
-                            'trash_trashed_bool'])
+                    columns=['id','trash_timestamp_entrance', 'trash_timestamp_exit',
+                    'trash_checksum', 'trash_checksum_type','trash_oripath','trash_fname',
+                    'trash_box_id','trash_trashed_bool'])
     #whatever is already in the trash table of the db should be found like this
     trash_checksum = trash_info['trash_checksum']
     trash_oripath = trash_info['trash_oripath']
@@ -891,12 +892,11 @@ or lab technician.""")
     # if this gives no results, we need to just add stuff to this table, for files 
     # are still in limbo/waiting for trash time to be ok
     latest_trashinfo = mydb.get_table_rows_where(table='trash', 
-                    columns=['id','trash_timestamp','trash_checksum', 
-                            'trash_checksum_type','trash_oripath',
-                            'trash_fname','trash_box_id',
-                            'trash_trashed_bool'],
+                    columns=['id','trash_timestamp_entrance','trash_timestamp_exit',
+                    'trash_checksum', 'trash_checksum_type','trash_oripath','trash_fname',
+                    'trash_box_id','trash_trashed_bool'],
                     condition = " WHERE trash_trashed_bool=1 ORDER BY " +
-                            "trash_timestamp DESC LIMIT 1 ")
+                            "trash_timestamp_entrance DESC LIMIT 1 ")
     totrashlist = []
     toretrashlist = []
     preptrashlist = []
@@ -926,7 +926,7 @@ or lab technician.""")
         if not checksumdel in trash_checksum:#it is a new file to trash, saving it
             nu = str(dt.datetime.now().isoformat())
             cmd = ("INSERT INTO trash VALUES(NULL, " + 
-                    "'{0}','{1}','{2}', '{3}','{4}','{5}','{6}',{7});".format(nu, 
+                    "'{0}', NULL, '{1}','{2}', '{3}','{4}','{5}','{6}',{7});".format(nu, 
                     checksumdel, checksumtypedel, normfile, 
                     filedel, myos, box_id, int(0)))
             res, code = mydb.execute(cmd)
@@ -937,10 +937,9 @@ or lab technician.""")
             preptrashlist.append(filedel)
         else:
             dbfilename =  mydb.get_table_rows_where(table='trash', 
-                            columns=['id','trash_timestamp','trash_checksum', 
-                                    'trash_checksum_type','trash_oripath',
-                                    'trash_fname','trash_box_id',
-                                    'trash_trashed_bool'],
+                            columns=['id','trash_timestamp_entrance','trash_timestamp_exit',
+                            'trash_checksum', 'trash_checksum_type','trash_oripath',
+                            'trash_fname','trash_box_id','trash_trashed_bool'],
                             condition = " WHERE trash_checksum = '{0}';".format(
                                     checksumdel))
             if not filedel == str(dbfilename['trash_oripath'][0]):
@@ -968,11 +967,10 @@ or lab technician.""")
     memory_trash = []
     logger.info('Trashables should be older than :' + old_ts_iso)
     find_trashables = mydb.get_table_rows_where(table='trash', 
-                            columns=['id','trash_timestamp','trash_checksum', 
-                                    'trash_checksum_type','trash_oripath',
-                                    'trash_fname','trash_box_id',
-                                    'trash_trashed_bool'], 
-                            condition = " WHERE datetime(trash_timestamp) < datetime('{0}') and trash_trashed_bool = 0 ORDER BY trash_timestamp;".format(old_ts_iso)
+                            columns=['id','trash_timestamp_entrance','trash_timestamp_exit',
+                            'trash_checksum', 'trash_checksum_type','trash_oripath',
+                            'trash_fname','trash_box_id','trash_trashed_bool'], 
+                            condition = " WHERE datetime(trash_timestamp_entrance) < datetime('{0}') and trash_trashed_bool = 0 ORDER BY trash_timestamp_entrance;".format(old_ts_iso)
                                         )
     for t in find_trashables:
         logger.info(t)
@@ -983,11 +981,18 @@ or lab technician.""")
                     "actually be deleted: ")
         for trashable in find_trashables:
             the_id = trashable['id']
-            nu = str(dt.datetime.now().isoformat())
-            cmd = "UPDATE trash SET trash_trashed_bool = 1 where id = %(id)d" %{"id":the_id}
+            nudan = str(dt.datetime.now().isoformat())
+            #update boolean
+            cmd1 = "UPDATE trash SET trash_trashed_bool = 1 where id = %(id)d" %{"id":the_id}
             logger.info('\t' + trashable['trash_oripath'])
-            res, code = mydb.execute(cmd)
+            res, code = mydb.execute(cmd1)
             sql_codes.append(code)
+            #update actual trash time, although it is a bit earlier than actual 
+            #deletion time (see main)
+            cmd2 = "UPDATE trash SET trash_timestamp_exit ='{0}' WHERE id = {1}".format(nudan, int(the_id))
+#             logger.info('\t' + trashable['trash_oripath'])
+            res2, code2 = mydb.execute(cmd2)
+            sql_codes.append(code2)
             mydb.commit()
             totrashlist.append(trashable['trash_oripath'])
             t_count += 1
@@ -997,12 +1002,11 @@ or lab technician.""")
     #known at yoda and db when it comes to checksums, but that have somehow not been 
     #actually removed or have been put back (testing purposes).
     check_trashed = mydb.get_table_rows_where(table='trash', 
-                            columns=['id','trash_timestamp','trash_checksum', 
-                                    'trash_checksum_type','trash_oripath',
-                                    'trash_fname','trash_box_id',
-                                    'trash_trashed_bool'],
+                            columns=['id','trash_timestamp_entrance','trash_timestamp_exit',
+                            'trash_checksum', 'trash_checksum_type','trash_oripath',
+                            'trash_fname','trash_box_id','trash_trashed_bool'],
                             condition = " WHERE trash_trashed_bool = 1 " + 
-                                    "ORDER BY trash_timestamp ;")
+                                    "ORDER BY trash_timestamp_entrance ;")
     for fun in check_trashed:
         the_id = fun['id']
         the_path = fun['trash_oripath']
@@ -1015,8 +1019,9 @@ or lab technician.""")
         #if files are retrashed, shall we update anything or not BTW?
         # for now, not updating the trash time
     number = (c + c2)
+    syncrunnow = str(dt.datetime.now().isoformat())
     cmd = ("INSERT INTO sync_run VALUES (NULL, " +
-            "'{0}','{1}','{2}',{3},{4});".format(now, mytop, __version__, int(number),
+            "'{0}','{1}','{2}','{3}',{4},{5});".format(now, syncrunnow, mytop, __version__, int(number),
             int(t_count)))
     res, code = mydb.execute(cmd)
     sql_codes.append(code)
@@ -1028,19 +1033,28 @@ or lab technician.""")
     double_check = pre_delete(totrashlist + toretrashlist)
     double_check[:] = [i for i in double_check if os.path.isdir(i) and not i[0]=='.']
     incomplete = []
+    print ('DELETE_CHECK!', delete_check)
+    print ('DOUBLE_CHECK', double_check)
     for dc in double_check:
         osfiles = os.listdir(dc)
         osfiles[:] = [files for files in osfiles if not files[0]=='.']
+
         if not len(osfiles) == len(delete_check[dc]):
             for item in delete_check[dc]:
+                print ('-------------------------->', item)
                 warnlist2.append(item)
     actually_delete_list = pre_delete(totrashlist + toretrashlist)
+    print ("ORI_WARNLIST", warnlist2, len(warnlist2))
     skipitems1 = check_warnlist(warnlist)
     for item in skipitems1:
         logger.warning("File: " + item + " is not deleted because one or more files" + 
                     " from its WEPV directory has a known checksum, but was saved "+
                     " under a different name.")
+    print (warnlist2, len(warnlist2))
+    print ('regular warnlist2')
     skipitems2 = check_warnlist(warnlist2)
+    print (skipitems2, len(skipitems2))
+    input ('warnlist2 after check_warnlist2, how many are these?')
     for item in skipitems2:
         logger.warning("File: " + item + " is not deleted because one or more files" + 
                     " from its WEPV directory is not identified as a known checksum." +
@@ -1103,9 +1117,9 @@ or lab technician.""")
             'Thanks for introducing >> ' + str(l_prepped) + ' << file(s)' + 
             ' that will be trashed in the near future... \n\nHurray!')
         print('-------------------------------------------\n')
-        try:
+        if myos == 'posix':
             os.system('fortune')
-        except:
+        else:
             print ("((((((((((((((((((\n)))))))))))))))))))")
     else:
         print('\n-------------------------------------------')
@@ -1138,16 +1152,32 @@ def check_warnlist(warnlist):
     `labsync.sync`
     """
     kickout = []
+    fmem = []
+    wepvcheck_dir = False
+    wepvcheck_file = False
     for f in warnlist:
         pad, file = os.path.split(f)
+        print ('pad', pad)
+        print ('file', file)
+        fmem.append(f)
         boring, yay = os.path.split(pad)
-        wepvcheck_dir = re.match(WEPV, yay)
-        wepvcheck_file = re.match(WEPV, file)
+        print ('boring', boring)
+        print ('yay', yay)
+        if re.match(WEPV, yay):
+            wepvcheck_dir = True
+        print ('wepv Dir', wepvcheck_dir)
+        if re.match(WEPV, file):
+            wepvcheck_file = True
+        print ('wepv File', wepvcheck_file)
         if wepvcheck_dir:
-            otherfiles = os.listdir(pad)
+            print ("DIR = True")
+            otherfiles = os.listdir(pad)      
             if otherfiles:
                 for otherfile in otherfiles:
-                    kickout.append(os.path.join(pad, otherfile))
+                    if not otherfile in fmem:
+                        kickout.append(os.path.join(pad, otherfile))
+    print (kickout, len(kickout))
+    input('kickout list and length')
     return kickout
          
 def pre_delete(files2delete):
@@ -1187,7 +1217,7 @@ def pre_delete(files2delete):
             if wepvcheck_dir and wepvcheck_file:
                 # we don't append the file because we will delete it's folder
                 wepvfolder.append(patje)
-            elif webvcheck_dir and not wepvcheck_file:
+            elif wepvcheck_dir and not wepvcheck_file:
                 continue
             elif not wepvcheck_dir and wepvcheck_file:
                 wepvfile.append(thing)

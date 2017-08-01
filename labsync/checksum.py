@@ -142,6 +142,16 @@ def simulate_list(n=2000, randsize=100, bytesize=30, algoID='MD5-SHA256'):
         bitlist.append(algoID + ' ' + hasj + ' ' + samplebyte)
     return bitlist
 
+def h_string(mystring=b'geef poot', algo='sha256', encoding='base64'):
+    #message = mystring.encode('base64')
+    hash = hashlib.sha256(mystring).digest()
+    encoded = base64.b64encode(hash)
+    print (hash)
+    print (encoded)
+    return hash, encoded
+#     print (encoded)
+#     return encoded
+
 def testcase():
     """
     Test/simulate some scenario's.

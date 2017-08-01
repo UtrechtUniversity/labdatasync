@@ -35,7 +35,8 @@ mylogger = logging.getLogger("Labdata_cleanup.database")
 #used by the script to create the db 
 db_creation = """CREATE TABLE sync_run(
 id      INTEGER PRIMARY KEY AUTOINCREMENT, 
-sync_run_timestamp      TEXT,
+timestamp_start      TEXT,
+timestamp_ready      TEXT,
 computer_id     TEXT,
 script_version      TEXT,
 uploads_done        INTEGER,
@@ -55,7 +56,8 @@ upload_count        INTEGER
 );
 CREATE TABLE trash(
 id      INTEGER PRIMARY KEY AUTOINCREMENT,
-trash_timestamp     TEXT,
+trash_timestamp_entrance     TEXT,
+trash_timestamp_exit     TEXT,
 trash_checksum      TEXT,
 trash_checksum_type     TEXT,
 trash_fname     TEXT,
@@ -71,7 +73,8 @@ Custom code to create the database.
 """
 #make sure all types are ok (in the numpy result arrays)
 db_types = {'sync_run': {'id': '<i4', 
-                            'sync_run_timestamp': 'U26',
+                            'timestamp_start': 'U26',
+                            'timestamp_ready': 'U26',
                             'computer_id' : 'U30', 
                             'script_version': 'U4',
                             'uploads_done' : '<i10',
@@ -86,7 +89,8 @@ db_types = {'sync_run': {'id': '<i4',
                          'upload_count' : '<i4',
                          },
             'trash': {'id': '<i4',
-                        'trash_timestamp': 'U26',
+                        'trash_timestamp_entrance': 'U26',
+                        'trash_timestamp_exit': 'U26',
                         'trash_checksum': 'U50',
                         'trash_checksum_type': 'U5',
                         'trash_fname':'U1024',
