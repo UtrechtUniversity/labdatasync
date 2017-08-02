@@ -1153,13 +1153,13 @@ def check_warnlist(warnlist):
     """
     kickout = []
     fmem = []
+    dirmem = []
     wepvcheck_dir = False
     wepvcheck_file = False
     for f in warnlist:
         pad, file = os.path.split(f)
         print ('pad', pad)
         print ('file', file)
-        fmem.append(f)
         boring, yay = os.path.split(pad)
         print ('boring', boring)
         print ('yay', yay)
@@ -1171,14 +1171,60 @@ def check_warnlist(warnlist):
         print ('wepv File', wepvcheck_file)
         if wepvcheck_dir:
             print ("DIR = True")
-            otherfiles = os.listdir(pad)      
+            otherfiles = os.listdir(pad)
             if otherfiles:
                 for otherfile in otherfiles:
-                    if not otherfile in fmem:
+                    if not os.path.join(pad, otherfile) in warnlist:
                         kickout.append(os.path.join(pad, otherfile))
     print (kickout, len(kickout))
     input('kickout list and length')
     return kickout
+
+def check_warnlist(warnlist):
+    """
+    Search for any other files wihtin WEPV sets and make sure they get added.
+    
+    In the situation in which *one or just some files* from a data set is already
+    known given it's checksum, but it has a different name than before, identify the 
+    set this file belongs to and exclude the whole set from the deletion flow in
+    the main sync routine.
+    
+    **Parameters**
+    --------------
+    warnlist: list  
+        *A list with warnings originating from labsync.sync().*  
+    
+    **Returns**
+    -----------
+    kickout: list  
+        *A list of files to exclude from deletion.*  
+    
+    **See Also**
+    ------------
+    `labsync.sync`
+    """
+    extra = []
+    dirmem = []
+    filemem = []
+    #first loop: collect all unique WEPV directories   
+    for f in warnlist:
+        path, file = os.path.split(f)
+        shortpath, maybe_wepvdir = os.path.split(path)
+        if re.match(WEPV, maybe_wepvdir):
+            if not path in dirmem:
+                dirmem.append(path)
+    #second loop over wepv dirs, check if there are any more files not in warnlist            
+    for dir in dirmem:
+        otherfiles = os.listdir(dir)
+        if otherfiles:
+            for otherfile in otherfiles:
+                if not os.path.join(dir, otherfile) in warnlist:
+                    extra.append(os.path.join(dir, otherfile))
+    print (warnlist + extra,  len(extra + warnlist))
+    print (warnlist, len(warnlist))
+    input('kickout list and length')
+    return warnlist + extra
+          
          
 def pre_delete(files2delete):
     """
