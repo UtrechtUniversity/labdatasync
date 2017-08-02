@@ -1127,67 +1127,16 @@ or lab technician.""")
         print ("Notify your Lab tech!, specify computer ID and current time.")
     logger.info("Sync run finished.")
     return upped, totrashlist, toretrashlist, warnlist, warnlist2, dberror
-    
-def check_warnlist(warnlist):
-    """
-    Exclude files/folders for which warnings were encountered.
-    
-    In the situation in which *one or just some files* from a data set is already
-    known given it's checksum, but it has a different name than before, identify the 
-    set this file belongs to and exclude the whole set from the deletion flow in
-    the main sync routine.
-    
-    **Parameters**
-    --------------
-    warnlist: list  
-        *A list with warnings originating from labsync.sync().*  
-    
-    **Returns**
-    -----------
-    kickout: list  
-        *A list of files to exclude from deletion.*  
-    
-    **See Also**
-    ------------
-    `labsync.sync`
-    """
-    kickout = []
-    fmem = []
-    dirmem = []
-    wepvcheck_dir = False
-    wepvcheck_file = False
-    for f in warnlist:
-        pad, file = os.path.split(f)
-        print ('pad', pad)
-        print ('file', file)
-        boring, yay = os.path.split(pad)
-        print ('boring', boring)
-        print ('yay', yay)
-        if re.match(WEPV, yay):
-            wepvcheck_dir = True
-        print ('wepv Dir', wepvcheck_dir)
-        if re.match(WEPV, file):
-            wepvcheck_file = True
-        print ('wepv File', wepvcheck_file)
-        if wepvcheck_dir:
-            print ("DIR = True")
-            otherfiles = os.listdir(pad)
-            if otherfiles:
-                for otherfile in otherfiles:
-                    if not os.path.join(pad, otherfile) in warnlist:
-                        kickout.append(os.path.join(pad, otherfile))
-    print (kickout, len(kickout))
-    input('kickout list and length')
-    return kickout
 
 def check_warnlist(warnlist):
     """
-    Search for any other files wihtin WEPV sets and make sure they get added.
+    Search for any other files that may exist wihtin WEPV sets as known according to DB
+    and make sure they get added to the list.
     
     In the situation in which *one or just some files* from a data set is already
-    known given it's checksum, but it has a different name than before, identify the 
-    set this file belongs to and exclude the whole set from the deletion flow in
-    the main sync routine.
+    known in DB given it's checksum, but it has a different name than before, or there 
+    are more files now, identify these to exclude the whole set from the deletion flow 
+    in the main sync routine.
     
     **Parameters**
     --------------
@@ -1196,7 +1145,7 @@ def check_warnlist(warnlist):
     
     **Returns**
     -----------
-    kickout: list  
+    extra: list  
         *A list of files to exclude from deletion.*  
     
     **See Also**
@@ -1213,19 +1162,15 @@ def check_warnlist(warnlist):
         if re.match(WEPV, maybe_wepvdir):
             if not path in dirmem:
                 dirmem.append(path)
-    #second loop over wepv dirs, check if there are any more files not in warnlist            
+    #second loop over wepv dirs, check if there are any other files not in warnlist
     for dir in dirmem:
         otherfiles = os.listdir(dir)
         if otherfiles:
             for otherfile in otherfiles:
                 if not os.path.join(dir, otherfile) in warnlist:
                     extra.append(os.path.join(dir, otherfile))
-    print (warnlist + extra,  len(extra + warnlist))
-    print (warnlist, len(warnlist))
-    input('kickout list and length')
     return warnlist + extra
-          
-         
+
 def pre_delete(files2delete):
     """
     Find out wether the files to delete are in a WEPV directory.
@@ -1409,6 +1354,20 @@ def main(testing=True):
         logger.info("===== Ran main sync script without critical errors/warnings =======")
     else:
         logger.info("===== Ran main sync script, WARNINGS/ERRORS were encountered! =====")
+        #simple format some output...later we'll think about what is best
+        print ("Mailing data management...")
+        ppwarnlist1 = '\n'.join(warnlist)
+        ppwarnlist2 = '\n'.join(warnlist2)
+        ppdberr = '\nDatabaser errors too?: ' + str(err)
+        mess = ('Warnings type 1 (File known under different name)\n\n' + ppwarnlist1 + 
+                'Warnings type 2 (Not all fellow checksums known)\n' + ppwarnlist2 + 
+                '\n' + ppdberr)
+        for dm in settings.DM:
+            yh.mail(Subject='SYNC Errors encountered on: ' + 
+                str(dt.datetime.now().isoformat()),
+                To=dm, 
+                From=official_id.lower() + '@' + 'soliscom.uu.nl',
+                Message=mess)   
     input("No errors? Hit enter to quit...otherwise: report!")
     return upped, trashlist, retrashlist, warnlist, warnlist2, err
 

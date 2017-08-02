@@ -16,6 +16,7 @@ import datetime as dt
 import errno
 import configparser
 import pkg_resources
+import pexpect #new; mailing via telnet uses pexpect. it is awesome
 
 __version__ = pkg_resources.require("labsync")[0].version
 __email__ = 'j.c.vanelst@uu.nl'
@@ -373,3 +374,32 @@ def sense_main(path=None):
     badfiles, baddirs, gooddict = sense(start_path=path)
     make_outfiles(gooddict)
     return gooddict
+
+def mail(Subject, To, From, Message):
+    """
+    Mail using telnet
+    """
+    maildata = """Subject: {0}
+To: {1}
+From: {2}
+
+{3}
+
+.""".format(Subject, To, From, Message)
+
+    child = pexpect.spawn ('telnet smtp.uu.nl 25')
+    child.expect ('Connected to smtp.uu.nl.')
+    child.expect ('220 *')
+    child.sendline ('HELO smtp.uu.nl')
+    child.expect ('250 *')
+    child.sendline ('MAIL FROM: {0}'.format(From))
+    child.expect ('250 *')
+    child.sendline ('RCPT TO: {0}'.format(To))
+    child.expect('250 2.1.5 Recipient OK')
+    child.sendline ('DATA')
+    child.expect('354 Start mail input*')
+    child.sendline (maildata)
+    child.expect('250 *')
+    child.sendline ('QUIT')
+    child.expect ('221 *')
+    
