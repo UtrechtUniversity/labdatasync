@@ -997,7 +997,7 @@ or lab technician.""")
             totrashlist.append(trashable['trash_oripath'])
             t_count += 1
     else:
-    	logger.info('No fresh trashables were found...')
+         logger.info('No fresh trashables were found...')
     #we may still have files in toretrashlist: with files found that are 
     #known at yoda and db when it comes to checksums, but that have somehow not been 
     #actually removed or have been put back (testing purposes).
@@ -1021,8 +1021,8 @@ or lab technician.""")
     number = (c + c2)
     syncrunnow = str(dt.datetime.now().isoformat())
     cmd = ("INSERT INTO sync_run VALUES (NULL, " +
-            "'{0}','{1}','{2}','{3}',{4},{5});".format(now, syncrunnow, mytop, __version__, int(number),
-            int(t_count)))
+            "'{0}','{1}','{2}','{3}',{4},{5});".format(now, syncrunnow, 
+            mytop, __version__, int(number), int(t_count)))
     res, code = mydb.execute(cmd)
     sql_codes.append(code)
     mydb.commit()
@@ -1033,8 +1033,6 @@ or lab technician.""")
     double_check = pre_delete(totrashlist + toretrashlist)
     double_check[:] = [i for i in double_check if os.path.isdir(i) and not i[0]=='.']
     incomplete = []
-    print ('DELETE_CHECK!', delete_check)
-    print ('DOUBLE_CHECK', double_check)
     for dc in double_check:
         osfiles = os.listdir(dc)
         osfiles[:] = [files for files in osfiles if not files[0]=='.']
@@ -1044,17 +1042,13 @@ or lab technician.""")
                 print ('-------------------------->', item)
                 warnlist2.append(item)
     actually_delete_list = pre_delete(totrashlist + toretrashlist)
-    print ("ORI_WARNLIST", warnlist2, len(warnlist2))
     skipitems1 = check_warnlist(warnlist)
     for item in skipitems1:
         logger.warning("File: " + item + " is not deleted because one or more files" + 
                     " from its WEPV directory has a known checksum, but was saved "+
                     " under a different name.")
-    print (warnlist2, len(warnlist2))
-    print ('regular warnlist2')
     skipitems2 = check_warnlist(warnlist2)
-    print (skipitems2, len(skipitems2))
-    input ('warnlist2 after check_warnlist2, how many are these?')
+
     for item in skipitems2:
         logger.warning("File: " + item + " is not deleted because one or more files" + 
                     " from its WEPV directory is not identified as a known checksum." +
@@ -1130,13 +1124,13 @@ or lab technician.""")
 
 def check_warnlist(warnlist):
     """
-    Search for any other files that may exist wihtin WEPV sets as known according to DB
-    and make sure they get added to the list.
+    Search for any other files that may exist within WEPV sets as known according to DB
+    and make sure they get added to the list of files not to delete.
     
     In the situation in which *one or just some files* from a data set is already
     known in DB given it's checksum, but it has a different name than before, or there 
     are more files now, identify these to exclude the whole set from the deletion flow 
-    in the main sync routine.
+    in the main sync routine. Also, it ends up in the log.
     
     **Parameters**
     --------------
@@ -1154,7 +1148,6 @@ def check_warnlist(warnlist):
     """
     extra = []
     dirmem = []
-    filemem = []
     #first loop: collect all unique WEPV directories   
     for f in warnlist:
         path, file = os.path.split(f)
@@ -1360,8 +1353,8 @@ def main(testing=True):
         ppwarnlist2 = '\n'.join(warnlist2)
         ppdberr = '\nDatabaser errors too?: ' + str(err)
         mess = ('Warnings type 1 (File known under different name)\n\n' + ppwarnlist1 + 
-                'Warnings type 2 (Not all fellow checksums known)\n' + ppwarnlist2 + 
-                '\n' + ppdberr)
+                'Warnings type 2 (Not all fellow checksums in WEPV known)\n' + ppwarnlist2 + 
+                '\n' + ppdberr + '\n\n' + hell_banner)
         for dm in settings.DM:
             yh.mail(Subject='SYNC Errors encountered on: ' + 
                 str(dt.datetime.now().isoformat()),
