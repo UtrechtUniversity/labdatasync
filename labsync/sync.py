@@ -76,7 +76,7 @@ from labsync import yoda_helpers as yh
 __version__ = pkg_resources.require("labsync")[0].version
 __email__ = 'j.c.vanelst@uu.nl'
 __authors__ = ['Jacco van Elst', 'Julia Brehm'] 
-#__all__ = ['labsync']
+
 
 #print ('Package version:', __version__)
 
@@ -223,8 +223,8 @@ elif myos == 'posix':
         except:
             print ("could not create directory: ", t2)
             raise OSError("Could not create directory: ", t2)
-############## End of settings and specifics at startup ################################
 
+############## End of settings and specifics at startup ################################
 
 class cSpinner(threading.Thread):
     """
@@ -252,11 +252,15 @@ class cSpinner(threading.Thread):
 ############### Errors/Exceptions tryout ################################################
 
 class ConnectionError(Exception):
-    """Basic connection error."""
+    """ Basic connection error."""
  
 class MaxRetriesError(ConnectionError):
-    """You entered the wrong credentials more than 3 times"""
+    """ You entered the wrong credentials more than 3 times"""
+    
+class MailingError(Exception):
+    """ Mailing system seems broken."""
 
+############### GUI/Feedback ############################################################
 #if all goes well
 reward_banner=r"""THANK YOU!
 ))))))))))))))))))))))))))))))))))))))))
@@ -300,6 +304,7 @@ hell_banner=r"""Oh no!!!!
 """
 Wally ASCII art when errors are encountered.
 """
+#########################################################################################
 
 def connect(config):
     """
@@ -1348,19 +1353,33 @@ def main(testing=True):
     else:
         logger.info("===== Ran main sync script, WARNINGS/ERRORS were encountered! =====")
         #simple format some output...later we'll think about what is best
-        print ("Mailing data management...")
+        print ("....Mailing data management...")
         ppwarnlist1 = '\n'.join(warnlist)
         ppwarnlist2 = '\n'.join(warnlist2)
         ppdberr = '\nDatabaser errors too?: ' + str(err)
         mess = ('Warnings type 1 (File known under different name)\n\n' + ppwarnlist1 + 
-                'Warnings type 2 (Not all fellow checksums in WEPV known)\n' + ppwarnlist2 + 
+                'Warnings type 2 (Not all fellow checksums in WEPV folder are known)\n' + ppwarnlist2 + 
                 '\n' + ppdberr + '\n\n' + hell_banner)
-        for dm in settings.DM:
-            yh.mail(Subject='SYNC Errors encountered on: ' + 
-                str(dt.datetime.now().isoformat()),
-                To=dm, 
-                From=official_id.lower() + '@' + 'soliscom.uu.nl',
-                Message=mess)   
+        datamanagers = settings.DM
+        if len(datamanagers) == 1:
+            try:
+                yh.mail(Subject='SYNC Errors encountered on: ' + 
+                    str(dt.datetime.now().isoformat()), 
+                    To=datamanagers[0], 
+                    From=official_id.lower() + '@' + 'soliscom.uu.nl', 
+                    Message=mess)
+            except:
+                print("Mailing error: ", sys.exc_info()[0])
+        else:
+            for dm in datamanagers:
+                try:
+                    yh.mail(Subject='SYNC Errors encountered on: ' + 
+                        str(dt.datetime.now().isoformat()), 
+                        To=dm, 
+                        From=official_id.lower() + '@' + 'soliscom.uu.nl', 
+                        Message=mess)
+                except:
+                    print("Mailing error: ", sys.exc_info()[0])
     input("No errors? Hit enter to quit...otherwise: report!")
     return upped, trashlist, retrashlist, warnlist, warnlist2, err
 
