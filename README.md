@@ -278,7 +278,13 @@ You might as well create it yourself using pdoc:
 	$ pdoc --html --html-dir docs --only-pypath --external-links --overwrite ./labsync 
 ```
 
-Quick example for testing webdav connection:
+Mailing 
+-------
+
+From RC1 version 0.24review and onwards, a UU-specific mailing system is implemented. This is a higly UU-specific method, using telnet. The interaction within telnet is automated using the 'pexpect' module. If this code should at some point be implemented at UMCU, we'd need to think up a different system, or so it seems. Within the UU 'ethernet' (aka 'Wired') network, this should always work, elsewhere this mailing system will fail.
+
+
+Quick example for testing WebDav connection:
 --------------------------------------------
 
 ```
@@ -304,8 +310,8 @@ Quick example for testing webdav connection:
  	File(name='/public', size=0, mtime='Sun, 28 Jan 2007 16:00:00 GMT', ctime='Sun, 28 Jan 2007 16:00:00 GMT', contenttype='', contentlength=None, is_dir=True)]
 ```
 
-Nice extra's on windows and mac
--------------------------------
+Extra's on windows and mac: Icons.
+---------------------------------
 
 Create a new shortcut that executes the sync routine, add this to the name:
 ```
@@ -339,6 +345,6 @@ There are some test functions in **tps.py**, but, they are aimed at Test Procedu
 
 Without proper config files and a sqlite database and such, you will not get very far with this code,
 
-JvE on datetime.datetime(2017, 1, 12, 17, 29, 51, 17813442)
+JvE on 2017-08-03T10:55
 
  
