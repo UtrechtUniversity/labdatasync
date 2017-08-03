@@ -68,11 +68,11 @@ Other requirements then are:
 Setting up the basic stuff could then be as easy as:
 
 ```
-    $brew install python3  
-    $pip3 install ipython
-	$pip3 install numpy  
-    $pip3 install git+git://github.com/JuliaPython/easywebdav
-    $pip3 install pdoc
+    brew install python3  
+    pip3 install ipython
+    pip3 install numpy    
+    pip3 install git+git://github.com/JuliaPython/easywebdav
+    pip3 install pdoc
 ```
 
 ## Setting up a Windows box in the lab
@@ -104,10 +104,10 @@ Then, when you want to use the bash shell for installations of the dependencies,
 The bash shell pops up. You can now:  
 
 ```
-    $pip3 install ipython
-	$pip3 install numpy
-    $pip3 install git+git://github.com/JuliaPython/easywebdav
-    $pip3 install pdoc
+    pip3 install ipython
+    pip3 install numpy
+    pip3 install git+git://github.com/JuliaPython/easywebdav
+    pip3 install pdoc
 ```
 
 
@@ -123,9 +123,9 @@ You can check out the release candidate [RC1 branch from github](https://github.
 Then continue like so:
 
 ```
-    $ cd /path/to/Labddata_cleanup  #where you cloned the git repos
-    $ cd labsync
-    $ pip3 install --upgrade .
+    cd /path/to/Labddata_cleanup  #where you cloned the git repos
+    cd labsync
+    pip3 install --upgrade .
 ```
 
 The **structure** of Labdata_cleanup (branch RC1) is:
@@ -174,9 +174,9 @@ The **structure** of Labdata_cleanup (branch RC1) is:
 The package can be installed like this:
 
 ```
-	$ cd path-to-Labdata_cleanup #git repos
-	$ cd labsync
-	$ pip install --upgrade .
+	cd path-to-Labdata_cleanup #git repos
+	cd labsync
+	pip3 install --upgrade .
 ``` 
 
 Note that it is now installed in your site-packages folder. Any changes in the code will not have any effect once you've installed it this way, you will need to install it again. Usually after any new major edits, I will update the version number in setup.py, so you can easlily check that.  
@@ -188,9 +188,9 @@ In the process of testing this software, It might be best to accept changes I ma
 I've found the following info [here](https://stackoverflow.com/questions/1125968/how-do-i-force-git-pull-to-overwrite-local-files). In order to accept my latest pushed edits, issue the following commands:
 
 ```
-	$ cd path-to-Labdata_cleanup #git repos
-	$ git fetch --all
-	$ git reset --hard origin/RC1
+	cd path-to-Labdata_cleanup #git repos
+	git fetch --all
+	git reset --hard origin/RC1
 ``` 
 
 ------------------
@@ -200,7 +200,7 @@ I've found the following info [here](https://stackoverflow.com/questions/1125968
 # Documentation generation
 Create the whole package's documentation (from the same location as the package creation directory)like so:
 ```
-	$ pdoc --html --html-dir docs --only-pypath --external-links --overwrite ./labsync
+	pdoc --html --html-dir docs --only-pypath --external-links --overwrite ./labsync
 ```
  
              
@@ -210,7 +210,7 @@ Copy the file example_config.cfg.txt from Labdata_cleanup.
 Edit the name to reflect your workstation ID, e.g. mac7.cfg, dell3,cfg and *make sure the.txt extension is removed* from the filename. 
 Assuming your name is 'Wil de Bras', here is an example given 'Mac 7' as ID and the YODA *acceptance* domain:
 
-```   
+```
     [Connection]
     domain: acc.youth.data.uu.nl
     username: Wil
@@ -244,6 +244,7 @@ Assuming your name is 'Wil de Bras', here is an example given 'Mac 7' as ID and 
     test_fake_trash = TEST_FAKE_TRASH
     test_data_dir = TEST
 ```
+
 Now save it to the (first) labsync folder, the one where setup.py resides.   
 **Note**: Inside is another folder called labsync, that is the package itself, don't touch it!
 Next, build the database.
@@ -275,13 +276,15 @@ For now, this resides only in docs as html files (download them to view), soon o
 You might as well create it yourself using pdoc:
 
 ```
-	$ pdoc --html --html-dir docs --only-pypath --external-links --overwrite ./labsync 
+    pdoc --html --html-dir docs --only-pypath --external-links --overwrite ./labsync 
 ```
 
 Mailing 
 -------
 
 From RC1 version 0.24review and onwards, a UU-specific mailing system is implemented. This is a higly UU-specific method, using telnet. The interaction within telnet is automated using the 'pexpect' module. If this code should at some point be implemented at UMCU, we'd need to think up a different system, or so it seems. Within the UU 'ethernet' (aka 'Wired') network, this should always work, elsewhere this mailing system will fail.
+
+You need a telnet client, which is not by default configured on windows, follow [this](https://www.rootusers.com/how-to-enable-the-telnet-client-in-windows-10/) link for some instructions, at least under win10.  
 
 
 Quick example for testing WebDav connection:
