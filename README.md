@@ -1,6 +1,6 @@
 ![icon](https://raw.githubusercontent.com/UtrechtUniversity/labdatasync/RC1/icons/win_incon.ico) 
 
-# Labdata_cleanup (package *labsync*)
+# labdatasync (package *labsync*)
 
 Python code to synchronise/clean up lab data after check that all data resides on server.
 
