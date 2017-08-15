@@ -1,4 +1,4 @@
-![icon](https://raw.githubusercontent.com/UtrechtUniversity/Labdata_cleanup/RC1/icons/win_incon.ico) 
+![icon](https://raw.githubusercontent.com/UtrechtUniversity/labdatasync/RC1/icons/win_incon.ico) 
 
 # Labdata_cleanup (package *labsync*)
 
@@ -114,10 +114,10 @@ The bash shell pops up. You can now:
 Installing package *labsync*
 ----------------------------
 
-You can check out the release candidate [RC1 branch from github](https://github.com/UtrechtUniversity/Labdata_cleanup/tree/RC1). You can do  it manually, download the zip etc via Github, or via terminal (mac) or via the bash shell (windows) using this command:
+You can check out the release candidate [RC1 branch from github](https://github.com/UtrechtUniversity/labdatasync/tree/RC1). You can do  it manually, download the zip etc via Github, or via terminal (mac) or via the bash shell (windows) using this command:
 
 ```
-    git clone https://github.com/UtrechtUniversity/Labdata_cleanup.git -b RC1
+    git clone https://github.com/UtrechtUniversity/labdatasync.git -b RC1
 ```
 
 Then continue like so:
@@ -128,10 +128,10 @@ Then continue like so:
     pip3 install --upgrade .
 ```
 
-The **structure** of Labdata_cleanup (branch RC1) is:
+The **structure** of labdatasync (branch RC1) is:
 
 ```
-    Labdata_cleanup/
+    labdatasync/
         .gitignore
         example_config.cfg.txt ---------- *
         README.md
@@ -174,7 +174,7 @@ The **structure** of Labdata_cleanup (branch RC1) is:
 The package can be installed like this:
 
 ```
-	cd path-to-Labdata_cleanup #git repos
+	cd path-to-labdatasync #git repos
 	cd labsync
 	pip3 install --upgrade .
 ``` 
@@ -188,7 +188,7 @@ In the process of testing this software, It might be best to accept changes I ma
 I've found the following info [here](https://stackoverflow.com/questions/1125968/how-do-i-force-git-pull-to-overwrite-local-files). In order to accept my latest pushed edits, issue the following commands:
 
 ```
-	cd path-to-Labdata_cleanup #git repos
+	cd path-to-labdatasync #git repos
 	git fetch --all
 	git reset --hard origin/RC1
 ``` 
@@ -291,7 +291,7 @@ Quick example for testing WebDav connection:
 --------------------------------------------
 
 ```
-	wolk:Labdata_cleanup jacco$ ipython
+	wolk:labdatasync jacco$ ipython
 	iPython 3.5.1 (default, Feb 16 2016, 12:04:52) 
 	Type "copyright", "credits" or "license" for more information.
 
@@ -327,7 +327,7 @@ On a mac, i really enjoyed answer 5 (no upvotes, but very nice) from [here](http
 Shell commands should be like this:
 ```
 	#! /bin/bash
-	cd /Users/<you>/Documents/YOUth/Labdata_cleanup/labsync 
+	cd /Users/<you>/Documents/YOUth/labdatasync/labsync 
 	/usr/local/bin/python3 labsync
 ```
 
