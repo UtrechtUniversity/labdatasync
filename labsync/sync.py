@@ -703,7 +703,7 @@ def sync(server, config, files2upload, files2delete, reupload_delta,
     upload_info = mydb.get_table_rows_simple(table='upload', 
                             columns = ['id','upload_full_path', 'upload_count'])
     uploaded_before_info = mydb.get_table_rows_where(table='upload', 
-                                columns = ['id','upload_full_path', 'upload_count'],
+                                columns = ['id','upload_full_path', 'upload_rela_path','upload_count'],
                                 condition = "WHERE upload_count >= 1")
     uploaded_before_file = uploaded_before_info['upload_full_path']
     uploaded_before_id = uploaded_before_info['id']
@@ -767,7 +767,7 @@ or lab technician.""")
                 remote_path = remote_path.replace('\\','/')
             remote_path = posixpath.normpath(remote_path)
             #now last check to make everything join nicely
-            if remote_path[0] == '/': #todo: check if this is really needed
+            if remote_path[0] == '/': 
                 remote_path = remote_path[1:]
             remote_data_dir = posixpath.normpath(remote_data_dir)
             rel_path = posixpath.normpath(posixpath.join(remote_path, filename))
@@ -781,7 +781,7 @@ or lab technician.""")
                 nu = str(dt.datetime.now().isoformat())
                 cmd = ("INSERT INTO upload VALUES (NULL, " + 
                         "'{0}','{1}','{2}','{3}','{4}', {5});".format(file, rel_path, 
-                        nu, checksum, checksumtype, int(1)))
+                        nu, checksum, checksumtype, int(1))) #so, is this int(1) necesarry? #V0.24
                 res, code = mydb.execute(cmd)
                 sql_codes.append(code)
                 mydb.commit()
@@ -856,6 +856,7 @@ or lab technician.""")
                     #have been uploaded under different filenames, but with the same checksum
                     # error corrected with upload count, 
                     #should have been full (remote) path + name instead of just name
+                    #new retest, stuff still wrong with 'regular' webpv reuploads
                     find_by_checksum = mydb.get_table_rows_where(table='upload', 
                                 columns = ['id', 'upload_rela_path', 
                                             'upload_timestamp','upload_checksum'],
@@ -863,10 +864,8 @@ or lab technician.""")
                                     " WHERE upload_rela_path = '{0}' AND upload_checksum = '{1}' ".format(os.path.join(remote_path, filename), checksum))
                     this_one = find_by_checksum['id'][0]
                     nuweer = str(dt.datetime.now().isoformat())
-                    cmd1 = ("UPDATE upload SET upload_count = upload_count + 1 " + 
-                            "WHERE id = {0}".format(int(this_one)))
-                    cmd2 = ("UPDATE upload SET upload_timestamp = "
-                            + "'{0}' WHERE id = {1}".format(nuweer, int(this_one)))
+                    cmd1 = ("UPDATE upload SET upload_count = upload_count + 1 WHERE id = {0}".format(this_one))
+                    cmd2 = ("UPDATE upload SET upload_timestamp = '{0}' WHERE id = {1}".format(nuweer,this_one))
                     res, code = mydb.execute(cmd1)
                     sql_codes.append(code)
                     res2, code2  = mydb.execute(cmd2)
@@ -933,7 +932,7 @@ or lab technician.""")
             cmd = ("INSERT INTO trash VALUES(NULL, " + 
                     "'{0}', NULL, '{1}','{2}', '{3}','{4}','{5}','{6}',{7});".format(nu, 
                     checksumdel, checksumtypedel, normfile, 
-                    filedel, myos, box_id, int(0)))
+                    filedel, myos, box_id, int(0))) #V0.24
             res, code = mydb.execute(cmd)
             sql_codes.append(code)
             mydb.commit()
@@ -994,7 +993,7 @@ or lab technician.""")
             sql_codes.append(code)
             #update actual trash time, although it is a bit earlier than actual 
             #deletion time (see main)
-            cmd2 = "UPDATE trash SET trash_timestamp_exit ='{0}' WHERE id = {1}".format(nudan, int(the_id))
+            cmd2 = "UPDATE trash SET trash_timestamp_exit ='{0}' WHERE id = {1}".format(nudan, int(the_id))#V0.24 
 #             logger.info('\t' + trashable['trash_oripath'])
             res2, code2 = mydb.execute(cmd2)
             sql_codes.append(code2)
@@ -1027,7 +1026,7 @@ or lab technician.""")
     syncrunnow = str(dt.datetime.now().isoformat())
     cmd = ("INSERT INTO sync_run VALUES (NULL, " +
             "'{0}','{1}','{2}','{3}',{4},{5});".format(now, syncrunnow, 
-            mytop, __version__, int(number), int(t_count)))
+            mytop, __version__, int(number), int(t_count))) #V0.24
     res, code = mydb.execute(cmd)
     sql_codes.append(code)
     mydb.commit()
