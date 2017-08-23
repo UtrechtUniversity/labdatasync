@@ -1356,9 +1356,9 @@ def main(testing=True):
             ppwarnlist1 = '\n'.join(warnlist)
             ppwarnlist2 = '\n'.join(warnlist2)
             ppdberr = '\nDatabaser errors too?: ' + str(err)
-            mess = ('Warnings type 1 (File known under different name)\n\n' + ppwarnlist1 + 
+            mess = ('Warnings type 1 (File known under different name)\n\n' + ppwarnlist1 + '\n'
                     'Warnings type 2 (Not all fellow checksums in WEPV folder are known)\n' + ppwarnlist2 + 
-                    '\n' + ppdberr + '\n\n' + hell_banner)
+                    '\n' + ppdberr + '\n\n' + hell_banner + '\n')
             datamanagers = settings.DM
             try:
                 yh.mail(server='smtp.uu.nl', Subject='SYNC Errors encountered on: ' + 
