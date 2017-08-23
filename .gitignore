@@ -4,15 +4,22 @@
 *.swo
 *.swp
 *.swn
+*.log
+*.sqlite
+*.cfg
 
 # Directories #
 ###############
-logs/
+TEST
+TEST_FAKE_TRASH
+docs
 
 # Specific files #
 ##################
 labsync/settings.py
 */settings.py
+checksums.txt
+*Labdata_cleanup.log.*
 
 # OS generated files #
 ######################
