@@ -282,9 +282,7 @@ You might as well create it yourself using pdoc:
 Mailing 
 -------
 
-From RC1 version 0.24review and onwards, a UU-specific mailing system is implemented. This is a higly UU-specific method, using telnet. The interaction within telnet is automated using the 'pexpect' module. If this code should at some point be implemented at UMCU, we'd need to think up a different system, or so it seems. Within the UU 'ethernet' (aka 'Wired') network, this should always work, elsewhere this mailing system will fail.
-
-You need a telnet client, which is not by default configured on windows, follow [this](https://www.rootusers.com/how-to-enable-the-telnet-client-in-windows-10/) link for some instructions, at least under win10.  
+We have a portable (Win + posix) mailing system within the UU wired network. Please set the **MAIL** to MAIL = False if you intend to run tests ouside this range. You can find it around line 144 in labsync/sync.py. If you don't some errors might obfuscate the testing flow.  
 
 
 Quick example for testing WebDav connection:

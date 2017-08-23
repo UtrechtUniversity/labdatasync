@@ -194,7 +194,7 @@ if DEBUG:
     print ("Official workstation ID: " , official_id)
     print ("Current 'labsync' package version: ", __version__)
 
-############### Set up test directories for datasets and delete-folder + mailing ########
+############### Set up test directories for datasets and delete-folder #################
 
 t1 = gconf['TEST_DATA_DIR']['test_data_dir']
 t2 = gconf['TEST_DATA_DIR']['test_fake_trash']
@@ -993,7 +993,7 @@ or lab technician.""")
             #update actual trash time, although it is a bit earlier than actual 
             #deletion time (see main)
             cmd2 = "UPDATE trash SET trash_timestamp_exit ='{0}' WHERE id = {1}".format(nudan, int(the_id))#V0.24 
-#             logger.info('\t' + trashable['trash_oripath'])
+            logger.info('\t' + trashable['trash_oripath'])
             res2, code2 = mydb.execute(cmd2)
             sql_codes.append(code2)
             mydb.commit()
