@@ -136,29 +136,31 @@ The **structure** of labdatasync (branch RC1) is:
         example_config.cfg.txt ---------- *
         README.md
         Yoda_indexfile_format.txt
-        labsync/
-            checksums.txt <-------------- **
-            Labdata_cleanup.log <-------- **
-            mac7.cfg <------------------- ***
-            mac7db.sqlite <-------------- ***
-            setup.py
-            docs/ <---------------------- Documentation
-                labsync/ 
-                    checksum.m.html
-                    database.m.html
-                    index.html
-                    settings.m.html
-                    tps.m.html
-                    yoda_helpers.m.html
-            labsync/ <------------------- Code package
-                __init__.py
-                __main__.py
-                checksum.py
-                database.py
-                settings.py
-                sync.py 
-                tps.py
-                yoda_helpers.py           
+        checksums.txt <-------------- **
+        Labdata_cleanup.log <-------- **
+        mac7.cfg <------------------- ***
+        mac7db.sqlite <-------------- ***
+        setup.py            
+		docs/ <---------------------- Documentation
+            labsync/                  (only if you generate this) 
+                checksum.m.html
+                database.m.html
+                index.html
+                settings.m.html
+                tps.m.html
+                yoda_helpers.m.html
+        labsync/ <------------------- Code package
+            __init__.py
+            __main__.py
+            checksum.py
+            database.py
+            settings.py
+            sync.py 
+            tps.py
+            yoda_helpers.pt
+        icons/
+            win_icon.ico
+            mac_icon.hqx			
      
      
      Notes:
