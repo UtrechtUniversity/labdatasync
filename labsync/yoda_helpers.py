@@ -16,7 +16,8 @@ import datetime as dt
 import errno
 import configparser
 import pkg_resources
-import pexpect #new; mailing via telnet uses pexpect. it is awesome
+import smtplib #better: simpple outgoing mail using smtplib (portable)
+#import pexpect #new; mailing via telnet uses pexpect. it is awesome
 
 __version__ = pkg_resources.require("labsync")[0].version
 __email__ = 'j.c.vanelst@uu.nl'
@@ -376,7 +377,7 @@ def sense_main(path=None):
     make_outfiles(gooddict)
     return gooddict
 
-def mail(Subject, To, From, Message):
+def mail_pexpect(Subject, To, From, Message):
     """
     Mail using telnet
     """
@@ -404,3 +405,20 @@ From: {2}
     child.sendline('QUIT')
     child.expect('221 *')
     
+def mail(server='smtp.uu.nl', From=None, To=None, Subject=None, Message=None):
+    """ Mail using smtplib. Nice and simple and portable """
+    assert isinstance(To, list)
+    # Prepare actual message
+    message = """\
+From: %s
+To: %s
+Subject: %s
+
+%s
+""" % (From, ", ".join(To), Subject, Message)
+    # somehow, sendmail does not have a subject by default
+    OKmessage = 'Subject: {}\n\n{}'.format(Subject, Message)
+    # Send the mail
+    server = smtplib.SMTP(server)
+    server.sendmail(From, To, OKmessage)
+    server.quit()

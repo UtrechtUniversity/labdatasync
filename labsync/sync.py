@@ -141,7 +141,7 @@ logger.addHandler(fh)
 ############ Global debug settings #######################################################
 
 DEBUG = True 
-MAIL = False
+MAIL = True
 DEBUGDB = False #database queries in logger, we don't want it all the time
 
 """
@@ -212,11 +212,6 @@ if myos == 'nt':
         except:
             print ("Could not create directory: ", t2)
             raise OSError("Could not create directory: ", t2)
-    if MAIL:
-        input("Mailing is not yet supported on on windows. Press enter to continue...")
-        MAILON = False
-    else:
-        MAILON = False
 
 elif myos == 'posix':
     if not posixpath.exists(t1):
@@ -231,12 +226,6 @@ elif myos == 'posix':
         except:
             print ("could not create directory: ", t2)
             raise OSError("Could not create directory: ", t2)
-    if MAIL:
-        input('Mailing only works on UU **wired** IP range...' + 
-             ' Set MAIL = False when running this software elsewhere.')
-        MAILON = True
-    else:
-        MAILON = False
         
 ############## End of settings and specifics at startup ################################
 
@@ -1362,33 +1351,22 @@ def main(testing=True):
     else:
         logger.info("===== Ran main sync script, WARNINGS/ERRORS were encountered! =====")
         #simple format some output...later we'll think about what is best
-        print ("....Mailing data management...")
-        ppwarnlist1 = '\n'.join(warnlist)
-        ppwarnlist2 = '\n'.join(warnlist2)
-        ppdberr = '\nDatabaser errors too?: ' + str(err)
-        mess = ('Warnings type 1 (File known under different name)\n\n' + ppwarnlist1 + 
-                'Warnings type 2 (Not all fellow checksums in WEPV folder are known)\n' + ppwarnlist2 + 
-                '\n' + ppdberr + '\n\n' + hell_banner)
-        datamanagers = settings.DM
-        if MAILON:
-            if len(datamanagers) == 1:
-                try:
-                    yh.mail(Subject='SYNC Errors encountered on: ' + 
-                        str(dt.datetime.now().isoformat()), 
-                        To=datamanagers[0], 
-                        From=official_id.lower() + '@' + 'soliscom.uu.nl', 
-                        Message=mess)
-                except:
-                    print("Mailing error: ", sys.exc_info()[0])
-            else:
-                for dm in datamanagers:
-                    try:
-                        yh.mail(Subject='SYNC Errors encountered on: ' + 
-                            str(dt.datetime.now().isoformat()), 
-                            To=dm, 
-                            From=official_id.lower() + '@' + 'soliscom.uu.nl', 
-                            Message=mess)
-                    except:
-                        print("Mailing error: ", sys.exc_info()[0])
+        if MAIL:
+            print ("....Mailing data management...")
+            ppwarnlist1 = '\n'.join(warnlist)
+            ppwarnlist2 = '\n'.join(warnlist2)
+            ppdberr = '\nDatabaser errors too?: ' + str(err)
+            mess = ('Warnings type 1 (File known under different name)\n\n' + ppwarnlist1 + 
+                    'Warnings type 2 (Not all fellow checksums in WEPV folder are known)\n' + ppwarnlist2 + 
+                    '\n' + ppdberr + '\n\n' + hell_banner)
+            datamanagers = settings.DM
+            try:
+                yh.mail(server='smtp.uu.nl', Subject='SYNC Errors encountered on: ' + 
+                    str(dt.datetime.now().isoformat()), 
+                    To=datamanagers, 
+                    From=official_id.lower() + '@' + 'soliscom.uu.nl', 
+                    Message=mess)
+            except:
+                print("Mailing error: ", sys.exc_info()[0])
     input("No errors? Hit enter to quit...otherwise: report!")
     return upped, trashlist, retrashlist, warnlist, warnlist2, err
