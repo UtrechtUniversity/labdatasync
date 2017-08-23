@@ -77,10 +77,7 @@ __version__ = pkg_resources.require("labsync")[0].version
 __email__ = 'j.c.vanelst@uu.nl'
 __authors__ = ['Jacco van Elst', 'Julia Brehm'] 
 
-
-#print ('Package version:', __version__)
-
-#want to exclude e.g. the settings documentation?, (un)comment lines below
+# want to exclude e.g. the settings documentation?, (un)comment lines below
 __pdoc__ = {}
 __pdoc__['settings'] = None 
 
@@ -119,7 +116,7 @@ def getConfigFile():
         config_filename = config_files
     return config_filename
 
-#compile the important regex for WEPV
+############ Compile the important regex for WEPV ########################################
 aa = "^[ab](\d{5})_(\d{1,2})[ym]_([a-z]{5,10})(_)([0-9]{4})(1[0-2]|0[1-9])"
 bb = "(3[01]|0[1-9]|[12][0-9])(_)([01]?[0-9]|[0-9])[0-5][0-9].+"
 mega = aa + bb
@@ -128,7 +125,7 @@ WEPV = re.compile(mega, re.IGNORECASE)
 WEPV regular expression in compiled form.
 """
 
-#set up logging
+############ Set up logging ##############################################################
 logger = logging.getLogger('Labdata_cleanup')
 """
 Logging.
@@ -141,7 +138,12 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
+############ Global debug settings #######################################################
+
 DEBUG = True 
+MAIL = False
+DEBUGDB = False #database queries in logger, we don't want it all the time
+
 """
 General debug setting, print some extra stuff when True.
 """
@@ -192,7 +194,7 @@ if DEBUG:
     print ("Official workstation ID: " , official_id)
     print ("Current 'labsync' package version: ", __version__)
 
-############### Set up test directories for datasets and delete-folder #################
+############### Set up test directories for datasets and delete-folder + mailing ########
 
 t1 = gconf['TEST_DATA_DIR']['test_data_dir']
 t2 = gconf['TEST_DATA_DIR']['test_fake_trash']
@@ -210,6 +212,12 @@ if myos == 'nt':
         except:
             print ("Could not create directory: ", t2)
             raise OSError("Could not create directory: ", t2)
+    if MAIL:
+        input("Mailing is not yet supported on on windows. Press enter to continue...")
+        MAILON = False
+    else:
+        MAILON = False
+
 elif myos == 'posix':
     if not posixpath.exists(t1):
         try:
@@ -223,7 +231,13 @@ elif myos == 'posix':
         except:
             print ("could not create directory: ", t2)
             raise OSError("Could not create directory: ", t2)
-
+    if MAIL:
+        input('Mailing only works on UU **wired** IP range...' + 
+             ' Set MAIL = False when running this software elsewhere.')
+        MAILON = True
+    else:
+        MAILON = False
+        
 ############## End of settings and specifics at startup ################################
 
 class cSpinner(threading.Thread):
@@ -677,7 +691,7 @@ def sync(server, config, files2upload, files2delete, reupload_delta,
     upload_db = config.get('LocalDataBase', 'database')
     box_id = config.get('LocalID', 'box_id')
     #initiate the database class like so:
-    mydb = db.dbManager(upload_db, debug=True)
+    mydb = db.dbManager(upload_db, debug=DEBUGDB)
     local_data_prefix = config.get('LocalFolders','data_dir')
     if testing:
         local_data_prefix = config.get('TEST_DATA_DIR','test_data_dir')
@@ -703,7 +717,8 @@ def sync(server, config, files2upload, files2delete, reupload_delta,
     upload_info = mydb.get_table_rows_simple(table='upload', 
                             columns = ['id','upload_full_path', 'upload_count'])
     uploaded_before_info = mydb.get_table_rows_where(table='upload', 
-                                columns = ['id','upload_full_path', 'upload_rela_path','upload_count'],
+                                columns = ['id','upload_full_path', 'upload_rela_path',
+                                           'upload_count'],
                                 condition = "WHERE upload_count >= 1")
     uploaded_before_file = uploaded_before_info['upload_full_path']
     uploaded_before_id = uploaded_before_info['id']
@@ -851,17 +866,12 @@ or lab technician.""")
                                 remote_path, filename)))
                     #find the DB id of the file by an actually smart query (checksums)
                     #>>>>>>>>>but what if it is a duplicate?: extension:
-                    #we also look for the exact same rela_path == remote_path + filename, deal?<<<<<<<<<<<<
-                    #TODO: maybe add generic database query w/ warnings about files that 
-                    #have been uploaded under different filenames, but with the same checksum
-                    # error corrected with upload count, 
-                    #should have been full (remote) path + name instead of just name
-                    #new retest, stuff still wrong with 'regular' webpv reuploads
+                    #we also look for the exact same rela_path (posixpath)
                     find_by_checksum = mydb.get_table_rows_where(table='upload', 
                                 columns = ['id', 'upload_rela_path', 
                                             'upload_timestamp','upload_checksum'],
                                 condition = 
-                                    " WHERE upload_rela_path = '{0}' AND upload_checksum = '{1}' ".format(os.path.join(remote_path, filename), checksum))
+                                    " WHERE upload_rela_path = '{0}' AND upload_checksum = '{1}' ".format(posixpath.join(remote_path, filename), checksum))
                     this_one = find_by_checksum['id'][0]
                     nuweer = str(dt.datetime.now().isoformat())
                     cmd1 = ("UPDATE upload SET upload_count = upload_count + 1 WHERE id = {0}".format(this_one))
@@ -1360,26 +1370,25 @@ def main(testing=True):
                 'Warnings type 2 (Not all fellow checksums in WEPV folder are known)\n' + ppwarnlist2 + 
                 '\n' + ppdberr + '\n\n' + hell_banner)
         datamanagers = settings.DM
-        if len(datamanagers) == 1:
-            try:
-                yh.mail(Subject='SYNC Errors encountered on: ' + 
-                    str(dt.datetime.now().isoformat()), 
-                    To=datamanagers[0], 
-                    From=official_id.lower() + '@' + 'soliscom.uu.nl', 
-                    Message=mess)
-            except:
-                print("Mailing error: ", sys.exc_info()[0])
-        else:
-            for dm in datamanagers:
+        if MAILON:
+            if len(datamanagers) == 1:
                 try:
                     yh.mail(Subject='SYNC Errors encountered on: ' + 
                         str(dt.datetime.now().isoformat()), 
-                        To=dm, 
+                        To=datamanagers[0], 
                         From=official_id.lower() + '@' + 'soliscom.uu.nl', 
                         Message=mess)
                 except:
                     print("Mailing error: ", sys.exc_info()[0])
+            else:
+                for dm in datamanagers:
+                    try:
+                        yh.mail(Subject='SYNC Errors encountered on: ' + 
+                            str(dt.datetime.now().isoformat()), 
+                            To=dm, 
+                            From=official_id.lower() + '@' + 'soliscom.uu.nl', 
+                            Message=mess)
+                    except:
+                        print("Mailing error: ", sys.exc_info()[0])
     input("No errors? Hit enter to quit...otherwise: report!")
     return upped, trashlist, retrashlist, warnlist, warnlist2, err
-
-#if __name__ == "__main__": main()

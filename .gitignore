@@ -1,0 +1,22 @@
+# File types #
+##############
+*.pyc
+*.swo
+*.swp
+*.swn
+
+# Directories #
+###############
+logs/
+
+# Specific files #
+##################
+labsync/settings.py
+*/settings.py
+
+# OS generated files #
+######################
+.DS_Store
+ehthumbs.db
+Icon
+Thumbs.db
