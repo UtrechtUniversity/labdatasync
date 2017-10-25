@@ -618,7 +618,7 @@ def strfdelta(tdelta, fmt):
     return fmt.format(**d)
 
 def sync(server, config, files2upload, files2delete, reupload_delta,
-        wait_until_delete_delta, testing=True):
+        wait_until_delete_delta, testing=False, implement_test=True):
     """ 
     Database synchronisation routine.
     
@@ -646,6 +646,10 @@ def sync(server, config, files2upload, files2delete, reupload_delta,
     testing: boolean  
         *If True, use only TEST and TEST_FAKE_TRASH instead of real data
         locations for sync tests.*  
+    implement_test : boolean
+        *If True, use TEST_FAKE_TRASH to move data to instead of deleting,
+        but do use the regularly specified data path as configured in cfg.*
+        
     
     **Notes** 
     ---------
@@ -1078,10 +1082,10 @@ or lab technician.""")
     #so all files from a set in which one or more files has a different name than
     #what is known in the db are NOT deleted, warnings about the files causing this 
     #are in the log
-    if testing:
+    if testing or implement_test:
         fake_delete(actually_delete_list, fake_trash=config.get('TEST_DATA_DIR', 
                     'test_fake_trash')) 
-        logger.info("Testing=True deletion of " + str(len(actually_delete_list)) + 
+        logger.info("Inspectable (test_fake_trash) deletion of " + str(len(actually_delete_list)) + 
                     " data set(s).")
     else:
         delete(actually_delete_list)
@@ -1286,7 +1290,7 @@ def abs_paths(directory):
         for f in filenames:
             yield os.path.abspath(os.path.join(dirpath, f)) 
     
-def main(testing=True):
+def main(testing=False, implement_test=True):
     """
     Main sync function. 
     
@@ -1316,10 +1320,10 @@ def main(testing=True):
     `labsync.sync`  
     """
     #some suggestions/settings for time delta's in 'sync' for testing and production
-    UPLOAD_DELTA = dt.timedelta(days=0, hours=0, minutes=3, seconds=0,  microseconds=0)
-    #UPLOAD_DELTA = dt.timedelta(days=0, hours=24, minutes=0, seconds=0, microseconds=0)
-    DELETE_DELTA = dt.timedelta(days=0, hours=0, minutes=5, seconds=33, microseconds=0)
-    #DELETE_DELTA = dt.timedelta(days=60, hours=0, seconds=0, minutes=4, microseconds=0)
+    #UPLOAD_DELTA = dt.timedelta(days=0, hours=0, minutes=3, seconds=0,  microseconds=0)
+    UPLOAD_DELTA = dt.timedelta(days=0, hours=20, minutes=0, seconds=0, microseconds=0)
+    #DELETE_DELTA = dt.timedelta(days=0, hours=0, minutes=5, seconds=33, microseconds=0)
+    DELETE_DELTA = dt.timedelta(days=2, hours=0, seconds=0, minutes=0, microseconds=0)
     logger.info("=============== Started main sync script. ===============")
     # get configuration object
     config = configparser.RawConfigParser()
@@ -1345,7 +1349,8 @@ def main(testing=True):
                           deletelist, 
                           UPLOAD_DELTA, 
                           DELETE_DELTA, 
-                          testing=testing)
+                          testing=testing
+                          implement_test=implement_test)
     if not warnlist and not warnlist2 and not err:
         logger.info("===== Ran main sync script without critical errors/warnings =======")
     else:
