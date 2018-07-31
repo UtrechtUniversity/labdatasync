@@ -1349,7 +1349,7 @@ def main(testing=False, implement_test=True):
                           deletelist, 
                           UPLOAD_DELTA, 
                           DELETE_DELTA, 
-                          testing=testing
+                          testing=testing,
                           implement_test=implement_test)
     if not warnlist and not warnlist2 and not err:
         logger.info("===== Ran main sync script without critical errors/warnings =======")
