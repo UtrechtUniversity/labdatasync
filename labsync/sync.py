@@ -117,10 +117,12 @@ def getConfigFile():
     return config_filename
 
 ############ Compile the important regex for WEPV ########################################
-aa = "^[ab](\d{5})_(\d{1,2})[ym]_([a-z]{5,10})(_)([0-9]{4})(1[0-2]|0[1-9])"
-bb = "(3[01]|0[1-9]|[12][0-9])(_)([01]?[0-9]|[0-9])[0-5][0-9].+"
-mega = aa + bb
-WEPV = re.compile(mega, re.IGNORECASE)
+# aa = "^[ab](\d{5})_(\d{1,2})[ym]_([a-z]{5,10})(_)([0-9]{4})(1[0-2]|0[1-9])"
+# bb = "(3[01]|0[1-9]|[12][0-9])(_)([01]?[0-9]|[0-9])[0-5][0-9].+"
+# mega = aa + bb
+# WEPV = re.compile(mega, re.IGNORECASE)
+# A WEP(V) format in the form like "B12345_3Y_experiment_".
+WEPV = re.compile( r'[AB]\d{5}_\d{1,2}[YM]_[a-z]{2,15}_', re.IGNORECASE )
 """
 WEPV regular expression in compiled form.
 """
