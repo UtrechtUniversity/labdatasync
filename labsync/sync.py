@@ -1091,7 +1091,7 @@ or lab technician.""")
                     " data set(s).")
     else:
         delete(actually_delete_list)
-        logger.info("Deleting " + str(len(actully_delete_list)) + " data set(s).")
+        logger.info("Deleting " + str(len(actually_delete_list)) + " data set(s).")
     l_upped = len(upped)
     l_trashed = len(totrashlist) + len(toretrashlist) - exclude_deletion_count
     l_prepped = len(preptrashlist)
@@ -1200,7 +1200,7 @@ def pre_delete(files2delete):
         is_file = os.path.isfile(thing)
         if is_dir:
             logger.critical(thing + " is an empty directory") 
-            raise OperationalError(' empty directory in list')
+            raise ValueError(' empty directory in list')
         if is_file:
             #continue
             patje, file = os.path.split(thing)
@@ -1246,8 +1246,8 @@ def delete(files_dirs):
     Untested yet. Actual deletion.  
     todo before production implementation  
     """
-    for thing in files_dirs:
-        shutil.rmtree(dest, ignore_errors=True)
+    #for thing in files_dirs:
+    #    shutil.rmtree(dest, ignore_errors=True)
         
 def gen_multi_fake_data(select_one=True):
     """

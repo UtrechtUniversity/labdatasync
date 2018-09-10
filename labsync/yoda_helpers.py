@@ -210,7 +210,7 @@ def sense(start_path=None, dic=None):
                     break
             c+=1
         print (c, "files found in ", dirname)
-        if not is_empty(subd):
+        if subd:
             if not len(list(subd.keys())) == len(list(tmp.keys())[0]):
                 print (dirname)
                 print ("================ NO! :-( incomplete!==========\n\n")
