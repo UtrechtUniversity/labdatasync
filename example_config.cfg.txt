@@ -14,6 +14,7 @@ data_dir:/Users/jacco/Documents/YOUth/kkc_tasks/trunk/DATA/
 
 [LocalID]
 box_id: mac7
+lab_id: 0000_kkc1_exp
 
 [RemoteFolders]
 list_dir: /grp-datamanager-youth
