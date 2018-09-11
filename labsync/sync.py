@@ -697,6 +697,7 @@ def sync(server, config, files2upload, files2delete, reupload_delta,
     # parse for local db info
     upload_db = config.get('LocalDataBase', 'database')
     box_id = config.get('LocalID', 'box_id')
+    lab_id = config.get('LocalID', 'lab_id')
     # initiate the database class like so:
     mydb = db.dbManager(upload_db, debug=DEBUGDB)
     local_data_prefix = config.get('LocalFolders', 'data_dir')
@@ -709,7 +710,7 @@ def sync(server, config, files2upload, files2delete, reupload_delta,
     if myos == 'posix':
         local_data_prefix = posixpath.normpath(local_data_prefix)
     # check if the subfolder in remote 'put_dir' exists according to plan
-    check_it = posixpath.normpath(posixpath.join(remote_data_dir, box_id))
+    check_it = posixpath.normpath(posixpath.join(remote_data_dir, lab_id))
     test = server.exists(check_it)
     if not test:
         logger.info("The remote directory " + check_it +
@@ -1339,11 +1340,10 @@ def main(testing=False, implement_test=True):
     -------------
     `labsync.sync`  
     """
-    # some suggestions/settings for time delta's in 'sync' for testing and production
-    # UPLOAD_DELTA = dt.timedelta(days=0, hours=0, minutes=3, seconds=0,  microseconds=0)
-    UPLOAD_DELTA = dt.timedelta(days=0, hours=0, minutes=0, seconds=10, microseconds=0)
-    # DELETE_DELTA = dt.timedelta(days=0, hours=0, minutes=5, seconds=33, microseconds=0)
-    DELETE_DELTA = dt.timedelta(days=0, hours=0, seconds=0, minutes=2, microseconds=0)
+    # Time delta's in 'sync'.
+    UPLOAD_DELTA = dt.timedelta(days=18, hours=0, minutes=0, seconds=0, microseconds=0)
+    DELETE_DELTA = dt.timedelta(days=30, hours=0, seconds=0, minutes=0, microseconds=0)
+
     logger.info("=============== Started main sync script. ===============")
     # get configuration object
     config = configparser.RawConfigParser()
