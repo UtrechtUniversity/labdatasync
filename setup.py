@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='labsync',
-      version='0.27-implement-test',
+      version='0.28-implement-test',
       description='Lab data synchronisation package for Utrecht University',
       classifiers=[
         'Development Status :: 0.1 - RC1',

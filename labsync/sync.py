@@ -147,32 +147,21 @@ General debug setting, print some extra stuff when True.
 
 ############  Figure out OS, settings and ID's ##########################################
 myos = os.name
-"""
-OS 
-"""
-known_lab_boxes = list(settings.ID_D)
-"""
-List of known lab computers.
-"""
 gconf = configparser.ConfigParser()
-"""
-Configuration file.
-"""
+
 confname = getConfigFile()
 gconf.read(confname)
 gconf.sections()
 
 # parse gconf for hostname etc, figure out some stuff about the system
-mytop = socket.gethostname()
+full_hostname = socket.gethostname()
 if myos == 'posix':
-    stuff = mytop.split('.')
-    myid = stuff[0]
-    network = ".".join(stuff[1:])
-    myid = myid
-    network = network.lower()
+    stuff = full_hostname.split('.')
+    hostname = stuff[0]
+    network = ".".join(stuff[1:]).lower()
     mac = True
 else:
-    myid = mytop  # win: no splits
+    hostname = full_hostname  # win: no splits
     network = None
     mac = False
 
@@ -181,15 +170,19 @@ if mac:
     if network != 'local' or network != 'soliscom.uu.nl':
         logger.warning("Hostname is not 'local' or 'soliscom', but: " + str(network))
 
-if myid not in known_lab_boxes:
-    print("Unknown (lab) computer given hostname. Notify lab tech!")
-    logger.error('Unknown lab box with name: ' + myid)
-    raise ValueError('Unknown lab box with name: ' + myid)
+# Get box_id from configuration file.
+box_id = gconf["LocalID"]["box_id"]
 
-official_id = settings.ID_D[myid]
+# Compare box_id to hostname. They have to be equal.
+if not box_id.lower() == hostname.lower():
+    message = "Host name '" + hostname + "' not equal to box-id '" + box_id + "'."
+    print(message)
+    logger.error(message)
+    raise ValueError(message)
+
 if DEBUG:
-    print("Official workstation ID: ", official_id)
-    print("Current 'labsync' package version: ", __version__)
+    print("Official workstation ID:", box_id)
+    print("Current 'labsync' package version:", __version__)
 
 ############### Set up test directories for datasets and delete-folder #################
 
@@ -1047,7 +1040,7 @@ or lab technician.""")
     syncrunnow = str(dt.datetime.now().isoformat())
     cmd = ("INSERT INTO sync_run VALUES (NULL, " +
            "'{0}','{1}','{2}','{3}',{4},{5});".format(now, syncrunnow,
-                                                      mytop, __version__, int(number), int(t_count)))  # V0.24
+                                                      full_hostname, __version__, int(number), int(t_count)))  # V0.24
     res, code = mydb.execute(cmd)
     sql_codes.append(code)
     mydb.commit()
@@ -1389,7 +1382,7 @@ def main(testing=False, implement_test=True):
                 yh.mail(server='smtp.uu.nl', Subject='SYNC Errors encountered on: ' +
                                                      str(dt.datetime.now().isoformat()),
                         To=datamanagers,
-                        From=official_id.lower() + '@' + 'soliscom.uu.nl',
+                        From=box_id.lower() + '@' + 'soliscom.uu.nl',
                         Message=mess)
             except:
                 print("Mailing error: ", sys.exc_info()[0])
