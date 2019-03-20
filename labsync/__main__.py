@@ -1,5 +1,5 @@
 #our base module
-import labsync
+import labsync.sync as lbs
 
 if __name__ == '__main__':
-    labsync.sync.main()
+    lbs.main()
