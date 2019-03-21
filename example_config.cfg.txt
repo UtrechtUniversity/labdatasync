@@ -1,19 +1,15 @@
 [Connection]
 domain: acc.youth.data.uu.nl
-username: jacco
-name: Jacco van Elst
-email: s.e.kreet@uu.nl 
-pass: g3h31m3shizzl3
 port: 443
 proto: https
 usessl: true
 path: /
 
 [LocalFolders]
-data_dir:/Users/jacco/Documents/YOUth/kkc_tasks/trunk/DATA/
+data_dir: /home/cid/Documents/YOUth/kkc_tasks/DATA/
 
 [LocalID]
-box_id: mac7
+box_id: dell00
 lab_id: 0000_kkc1_exp
 
 [RemoteFolders]
@@ -21,7 +17,7 @@ list_dir: /grp-datamanager-youth
 put_dir: /grp-intake-youth
 
 [LocalDataBase]
-database: mac7db.sqlite
+database: dell00db.sqlite
 
 [CHECKSUM_PATH]
 checksum_file = /grp-datamanager-youth/checksums.txt
