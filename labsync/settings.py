@@ -1,5 +1,5 @@
 #datamanager(s) get(s) mailed in case of errors
-DM = ['justin.time@uu.nl', 'w.i.l.debras@uu.nl'] #for each recient, a new mail
+DM = ['l.c.m.bruurmijn@uu.nl'] #for each recient, a new mail
 
 #dict to check file specifications and numbers (sense)
 CHECK_D = {
@@ -104,16 +104,6 @@ PSEUDO_D = {
         'facehouse':'B'
         }
 
-ID_D = {
-    'Gander':'DELL1',
-    'Donald':'DELL2',
-    'Dagobert':'DELL3',
-    'Quack':'DELL4',
-    'Mickey':'MAC1',
-    'Minnie':'MAC2',
-    'Goofy':'MAC3',
-    }
-    
 #testlist for checking file specs with three too long pseudo's and two wrong dates 
 TEST_LIST = ['A02980_9y_trustgame_20160706_1432_MAC04',
     'A02980_9y_trustgame_20160706_1432_settings.txt',
