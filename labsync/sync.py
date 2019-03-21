@@ -220,29 +220,29 @@ elif myos == 'posix':
 
 ############## End of settings and specifics at startup ################################
 
-class cSpinner(threading.Thread):
-    """
-    Present a spinner while waiting.  
-    """
-
-    def run(self):
-        self.stop = False
-        self.kill = False
-        print('Please wait...   ', end=' ')
-        sys.stdout.flush()
-        i = 0
-        while not self.stop:
-            if (i % 4) == 0:
-                sys.stdout.write('\b/')
-            elif (i % 4) == 1:
-                sys.stdout.write('\b-')
-            elif (i % 4) == 2:
-                sys.stdout.write('\b\\')
-            elif (i % 4) == 3:
-                sys.stdout.write('\b|')
-            sys.stdout.flush()
-            time.sleep(0.1)
-            i += 1
+# class cSpinner(threading.Thread):
+#     """
+#     Present a spinner while waiting.
+#     """
+#
+#     def run(self):
+#         self.stop = False
+#         self.kill = False
+#         print('Please wait...   ', end=' ')
+#         sys.stdout.flush()
+#         i = 0
+#         while not self.stop:
+#             if (i % 4) == 0:
+#                 sys.stdout.write('\b/')
+#             elif (i % 4) == 1:
+#                 sys.stdout.write('\b-')
+#             elif (i % 4) == 2:
+#                 sys.stdout.write('\b\\')
+#             elif (i % 4) == 3:
+#                 sys.stdout.write('\b|')
+#             sys.stdout.flush()
+#             time.sleep(0.1)
+#             i += 1
 
 
 ############### Errors/Exceptions tryout ################################################
@@ -261,30 +261,27 @@ class MailingError(Exception):
 
 ############### GUI/Feedback ############################################################
 # if all goes well
-reward_banner = r"""THANK YOU!
-))))))))))))))))))))))))))))))))))))))))
+reward_banner = r"""
+
+          _
+         /(|                        /
+        (  :                       /
+       __\  \  ___________________/
+     (____)  `|
+    (____)|   |  ALL IS AWESOME!
+     (____).__|
+      (___)__.|_____________________/
 
 
-            _
-           /(|                        /
-          (  :                       /
-         __\  \  ___________________/
-       (____)  `|
-      (____)|   |  ALL IS AWESOME!
-       (____).__|
-        (___)__.|_____________________/
-        
-)))))))))))))))))))))))))))))))))))))))))
-((((( DATA MANAGERS LOVE YOU!(((((((((((
-((((((((((((((((((((((((((((((((((((((((
 """
 """
 Thumb up ASCII art when all is well.
 """
 
 # if any stuff went wrong or needs attention
-hell_banner = r"""Oh no!!!!
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+hell_banner = r"""
+
+
       .----.
      /___.--'-.     shit hit the fan
      C   '----'
@@ -296,9 +293,8 @@ hell_banner = r"""Oh no!!!!
    /            /
                /\~~)__________
                  \(___________)
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-||||||||||  REPORT THIS !! |||||||||||||||
-<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
 """
 """
 Wally ASCII art when errors are encountered.
@@ -750,16 +746,16 @@ or lab technician.""")
         latest_upload_ts = latest_uploadchangeinfo['upload_timestamp'][0]
         # print(latest_upload_ts)
     except IndexError:
-        print('This is probably a fresh, empty database...')
+        # print('This is probably a fresh, empty database...')
         # should always "reupload" in case of empty db
         # so fake this upload time: my own epoch onset
         latest_upload_ts = '1979-07-22T00:31:41.592653'
     upped = []  # list for all "fresh" uploads in this run (including reuploads)
     # fancy spinner
-    spin1 = cSpinner()
-    spin1.stop = False
-    spin1.kill = False
-    spin1.start()
+    # spin1 = cSpinner()
+    # spin1.stop = False
+    # spin1.kill = False
+    # spin1.start()
     c = 0
     bs = []
     done_before = []
@@ -804,11 +800,12 @@ or lab technician.""")
             else:
                 logger.info("Known in local DB as uploaded, skipping: " + file)
                 done_before.append((file, checksum, checksumtype))
-        spin1.stop = True
-        spin1.kill = True
+        # spin1.stop = True
+        # spin1.kill = True
     except KeyboardInterrupt or EOFError:
-        spin1.kill = True
-        spin1.stop = True
+        pass
+        # spin1.kill = True
+        # spin1.stop = True
     first_bytes = sum(bs)
     logger.info("Uploaded " + str(c) + " files for the first time, " +
                 str(bytesto(first_bytes, 'm')) + " megabytes in total")
@@ -820,10 +817,10 @@ or lab technician.""")
     c2 = 0
     bs2 = []
     # and the next group of spinners
-    spin2 = cSpinner()
-    spin2.stop = False
-    spin2.kill = False
-    spin2.start()
+    # spin2 = cSpinner()
+    # spin2.stop = False
+    # spin2.kill = False
+    # spin2.start()
     nice_delta = strfdelta(delta, " {days} days {hours} hours {minutes} minutes " +
                            "{seconds} seconds")
     nice_orig = strfdelta(reupload_delta, " {days} days {hours} hours " +
@@ -883,11 +880,12 @@ or lab technician.""")
                     upped.append(file)
                     bs2.append(os.stat(file).st_size)
                     c2 += 1
-            spin2.stop = True
-            spin2.kill = True
+            # spin2.stop = True
+            # spin2.kill = True
         except KeyboardInterrupt or EOFError:
-            spin2.kill = True
-            spin2.stop = True
+            pass
+            # spin2.kill = True
+            # spin2.stop = True
     second_bytes = sum(bs2)
     logger.info("Uploaded " + str(c2) + " files that were already uploaded before, " +
                 str(bytesto(second_bytes, 'm')) + " megabytes in total")
@@ -969,8 +967,8 @@ or lab technician.""")
             else:
                 logger.info("Checksum already known in the deleted db, skipping to add " +
                             filedel + " to the db again, time for deletion will come...")
-    spin2.stop = True
-    spin2.kill = True
+    # spin2.stop = True
+    # spin2.kill = True
     # get the timestamp for which holds that files older are ready for actual trashing:
     current_ts_iso = str(dt.datetime.now().isoformat())
     current_ts = dt.datetime.now()
@@ -1124,10 +1122,9 @@ or lab technician.""")
     if not warnlist and not warnlist2 and not sql_errors > 0:
         print('\n-------------------------------------------')
         print(reward_banner)
-        print('Thanks for UPLOADING >> ' + str(l_upped) + ' << file(s) &\n' +
-              'Thanks for TRASHING >> ' + str(l_trashed) + ' << file(s) &\n' +
-              'Thanks for introducing >> ' + str(l_prepped) + ' << file(s)' +
-              ' that will be trashed in the near future... \n\nHurray!')
+        print('Files uploaded: ' + str(l_upped) + '\n' +
+              'Files deleted: ' + str(l_trashed) + '\n' +
+              'Files marked for deletion: ' + str(l_prepped) + '\n')
         print('-------------------------------------------\n')
     else:
         print('\n-------------------------------------------')
@@ -1347,14 +1344,21 @@ def main(testing=False, implement_test=True):
     # connect to server
     wbdv = connect(config)
     logger.info("Connected to server using webdav.")
+
+    print("Downloading list of checksums from vault ...", end=" ")
     vault_list, md_vault_list, sha_vault_list = download_hash_list(config,
                                                                    config_filename, wbdv)
+    print("Done.")
     logger.info("Downloaded list with vault files and checksums.")
+
     md_vault_list = sort_list(md_vault_list)
     sha_vault_list = sort_list(sha_vault_list)
+    print("Comparing to local checksums ...", end=" ")
     uploadlist, deletelist = comp2localchecksum(config, config_filename,
                                                 md_vault_list, sha_vault_list, testing=testing)
+    print("Done.")
     logger.info("Checksummed local files and comparing with list.")
+
     (upped, trashlist,
      retrashlist, warnlist,
      warnlist2, err) = sync(wbdv, config,
@@ -1386,5 +1390,5 @@ def main(testing=False, implement_test=True):
                         Message=mess)
             except:
                 print("Mailing error: ", sys.exc_info()[0])
-    input("No errors? Hit enter to quit...otherwise: report!")
+    input("Press Enter to quit.")
     return upped, trashlist, retrashlist, warnlist, warnlist2, err
