@@ -1341,6 +1341,15 @@ def main(testing=False, implement_test=True):
     config_filename = getConfigFile()
     logger.info(config_filename)
     config.read(config_filename)
+
+
+    # If the database file is not found, create it.
+    database_filename = config["LocalDataBase"]["database"]
+
+    if not os.path.isfile(database_filename):
+        db.build_db(database_filename)
+
+
     # connect to server
     wbdv = connect(config)
     logger.info("Connected to server using webdav.")

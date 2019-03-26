@@ -312,9 +312,9 @@ def build_db(name='mac3db.sqlite'):
         c = conn.cursor()
         c.executescript(db_creation)
         rows = c.execute('pragma foreign_keys')
-        for row in rows:
-            print (row)
+        # for row in rows:
+        #     print (row)
         conn.commit()
-        print ('The database ', name, ' was created.')
+        print ('The database', name, 'was created.')
     else:
-        print ('The database ', name, ' already exists. Please remove it and retry... ')
+        print ('The database', name, 'already exists. Please remove it and retry... ')
