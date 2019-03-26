@@ -1,6 +1,3 @@
-#datamanager(s) get(s) mailed in case of errors
-DM = ['l.c.m.bruurmijn@uu.nl'] #for each recient, a new mail
-
 #dict to check file specifications and numbers (sense)
 CHECK_D = {
         'chantigap':('*settings.txt', '*all_gazedata.mat', '*all_gazedata.csv', 

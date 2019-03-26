@@ -378,7 +378,14 @@ def sense_main(path=None):
     
 def mail(server='smtp.uu.nl', From=None, To=None, Subject=None, Message=None):
     """ Mail using smtplib. Nice and simple and portable """
-    assert isinstance(To, list)
+
+    # If To is given as a list, convert it to a comma-separated string.
+    if isinstance(To, list):
+        To = ", ".join(To)
+
+    # Convert semicolons into comma's.
+    To = To.replace(";", ",")
+
     # Prepare actual message
     message = """\
 From: %s
@@ -386,10 +393,12 @@ To: %s
 Subject: %s
 
 %s
-""" % (From, ", ".join(To), Subject, Message)
+""" % (From, To, Subject, Message)
     # somehow, sendmail does not have a subject by default
     OKmessage = 'Subject: {}\n\n{}'.format(Subject, Message)
+
     # Send the mail
-    server = smtplib.SMTP(server)
-    server.sendmail(From, To, OKmessage)
-    server.quit()
+    if To:
+        server = smtplib.SMTP(server)
+        server.sendmail(From, To.split(","), OKmessage)
+        server.quit()

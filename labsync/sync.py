@@ -1383,14 +1383,18 @@ def main(testing=False, implement_test=True):
         logger.info("===== Ran main sync script, WARNINGS/ERRORS were encountered! =====")
         # simple format some output...later we'll think about what is best
         if MAIL:
-            print("....Mailing data management...")
             ppwarnlist1 = '\n'.join(warnlist)
             ppwarnlist2 = '\n'.join(warnlist2)
             ppdberr = '\nDatabaser errors too?: ' + str(err)
-            mess = ('Warnings type 1 (File known under different name)\n\n' + ppwarnlist1 + '\n'
-                                                                                            'Warnings type 2 (Not all fellow checksums in WEPV folder are known)\n' + ppwarnlist2 +
-                    '\n' + ppdberr + '\n\n' + hell_banner + '\n')
-            datamanagers = settings.DM
+            mess = ('WARNINGS TYPE 1 (File known under different name):\n\n' + ppwarnlist1 + '\n\n------------\n\n' +
+                    'WARNINGS TYPE 2 (Not all fellow checksums in WEPV folder are known):\n\n' + ppwarnlist2 +
+                    '\n\n------------\n\n' + ppdberr + '\n\n' + hell_banner + '\n')
+
+            if config.has_option("Datamanagers", "email"):
+                datamanagers = config["Datamanagers"]["email"]
+            else:
+                datamanagers = ''
+
             try:
                 yh.mail(server='smtp.uu.nl', Subject='SYNC Errors encountered on: ' +
                                                      str(dt.datetime.now().isoformat()),

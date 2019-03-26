@@ -22,7 +22,8 @@ database: dell00db.sqlite
 [CHECKSUM_PATH]
 checksum_file = /grp-datamanager-youth/checksums.txt
 
-# New other "fixed" settings for data & types, do not edit values below here
+[Datamanagers]
+email:
 
 [TEST_DATA_DIR]
 test_fake_trash = TEST_FAKE_TRASH
