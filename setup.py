@@ -1,10 +1,10 @@
 from setuptools import setup
 
 setup(name='labsync',
-      version='1.0',
+      version='1.1',
       description='Lab data synchronisation package for Utrecht University',
       classifiers=[
-        'Development Status :: 0.1 - RC1',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: UNLICENSE License',
         'Programming Language :: Python :: 3.5',
         'Topic :: Data synchronisation :: WebDav :: Grid based Storage',
